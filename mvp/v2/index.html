@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Indian Culture Jigsaw Puzzle (Offline)</title>
+  <style>
+    :root{
+      --bg1:#fff3b0;
+      --bg2:#b5f5ff;
+      --card:#ffffff;
+      --ink:#1c1c1c;
+      --accent:#ff4d6d;
+      --accent2:#00b894;
+      --accent3:#6c5ce7;
+      --shadow: 0 10px 30px rgba(0,0,0,.15);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background: radial-gradient(circle at 20% 10%, var(--bg2), transparent 55%),
+                  radial-gradient(circle at 80% 20%, #ffd6e0, transparent 55%),
+                  radial-gradient(circle at 50% 90%, #d3ffce, transparent 55%),
+                  linear-gradient(135deg, var(--bg1), #ffeaa7);
+      min-height:100vh;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+    }
+
+    .app{
+      width:min(1100px, 100%);
+      padding: clamp(10px, 2.5vw, 18px);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      background: rgba(255,255,255,.8);
+      border: 3px solid rgba(0,0,0,.08);
+      border-radius: 999px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+    }
+    .logo{
+      width:40px; height:40px; border-radius: 14px;
+      background: conic-gradient(from 30deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #a66cff, #ff6b6b);
+      border: 3px solid rgba(0,0,0,.08);
+    }
+    .brand h1{margin:0; font-size: clamp(16px, 2.3vw, 22px); line-height:1.1;}
+    .brand small{display:block; font-size: 12px; opacity:.8;}
+
+    .top-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
+
+    .btn{
+      border:0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor:pointer;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(0,0,0,.08);
+      user-select:none;
+    }
+    .btn:active{transform: translateY(1px);}
+    .btn.primary{background: linear-gradient(135deg, #ff4d6d, #ffb703); color:#1a1a1a;}
+    .btn.good{background: linear-gradient(135deg, #00b894, #55efc4);}
+    .btn.purple{background: linear-gradient(135deg, #6c5ce7, #a29bfe); color:#0b0930;}
+    .btn.ghost{background: rgba(255,255,255,.85);}
+    .btn.small{padding: 10px 12px; font-size: 14px;}
+
+    .card{
+      background: rgba(255,255,255,.88);
+      border: 3px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .screen{display:none;}
+    .screen.active{display:block;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .choice{
+      display:flex; flex-direction:column; gap:10px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.9);
+      border: 3px solid rgba(0,0,0,.08);
+      box-shadow: 0 12px 24px rgba(0,0,0,.10);
+      cursor:pointer;
+      user-select:none;
+    }
+    .choice:hover{transform: translateY(-1px);}
+    .choice:active{transform: translateY(0px);}
+
+    .thumb{
+      width:100%;
+      aspect-ratio: 4/3;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #dff9fb, #ffeaa7);
+      border: 3px solid rgba(0,0,0,.08);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .choice-title{font-weight: 900; font-size: 16px;}
+    .choice-sub{font-size: 13px; opacity:.8;}
+
+    .row{display:flex; gap:12px; align-items:stretch;}
+    .row.wrap{flex-wrap:wrap;}
+
+    .game-wrap{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .stage{
+      position:relative;
+      width:100%;
+      height: min(64vh, 640px);
+      border-radius: var(--radius);
+      overflow:hidden;
+      background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.75));
+      border: 3px solid rgba(0,0,0,.08);
+      box-shadow: var(--shadow);
+    }
+
+    canvas{display:block; width:100%; height:100%;}
+
+    .hud{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .hud .pill{
+      background: rgba(255,255,255,.9);
+      border: 3px solid rgba(0,0,0,.08);
+      border-radius: 999px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
+      font-weight:800;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.78);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight:800;
+      display:none;
+      z-index: 9999;
+    }
+
+    .win-overlay{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap: 12px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.95), rgba(255,255,255,.55));
+      z-index: 50;
+    }
+    .win-overlay.show{display:flex;}
+    .win-text{
+      font-size: clamp(26px, 4vw, 44px);
+      font-weight: 1000;
+      text-shadow: 0 2px 0 rgba(0,0,0,.08);
+    }
+    .confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+
+    @media (min-width: 900px){
+      .game-wrap{grid-template-columns: 1fr 300px;}
+      .stage{height: min(70vh, 700px);}
+    }
+
+    .legend{font-size: 12px; opacity:.8; line-height:1.35;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand" aria-label="Puzzle brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Jigsaw Fun India</h1>
+          <small>Offline • Touch-friendly • No downloads</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="btnBack" class="btn ghost small" style="display:none;">← Back</button>
+        <button id="btnMute" class="btn small" title="Mute/Unmute">🔊 Sound: On</button>
+      </div>
+    </header>
+
+    <section id="screenSelect" class="screen active card">
+      <div class="row wrap" style="justify-content:space-between; align-items:flex-end;">
+        <div>
+          <div style="font-weight:1000; font-size:22px;">Choose a Picture</div>
+          <div class="legend">Tap a picture, then choose difficulty. Pieces will snap into place when close!</div>
+        </div>
+      </div>
+      <div id="choices" class="grid" style="margin-top:12px;"></div>
+    </section>
+
+    <section id="screenDifficulty" class="screen card">
+      <div class="row wrap" style="justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:1000; font-size:22px;">Choose Difficulty</div>
+          <div id="pickedLabel" class="legend"></div>
+        </div>
+      </div>
+      <div class="row wrap" style="margin-top:12px;">
+        <button class="btn primary" data-diff="easy">Easy (3×3)</button>
+        <button class="btn purple" data-diff="medium">Medium (4×4)</button>
+        <button class="btn good" data-diff="hard">Hard (5×5)</button>
+      </div>
+      <div class="legend" style="margin-top:10px;">Tip: On phones, use one finger to drag pieces. Pinch-zoom is off while playing.</div>
+    </section>
+
+    <section id="screenGame" class="screen">
+      <div class="hud">
+        <div class="pill" id="hudTitle">—</div>
+        <div class="row wrap" style="justify-content:flex-end;">
+          <div class="pill" id="hudMoves">Moves: 0</div>
+          <div class="pill" id="hudPlaced">Placed: 0/0</div>
+          <button id="btnShuffle" class="btn small">🔀 Shuffle Tray</button>
+          <button id="btnHint" class="btn small">✨ Hint</button>
+        </div>
+      </div>
+
+      <div class="game-wrap">
+        <div class="stage" id="stage">
+          <canvas id="gameCanvas"></canvas>
+          <div class="win-overlay" id="winOverlay">
+            <canvas class="confetti" id="confetti"></canvas>
+            <div class="win-text">You did it! 🎉</div>
+            <button id="btnPlayAgain" class="btn primary">Play Again</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-weight:1000; font-size:18px;">Piece Tray</div>
+          <div class="legend">Drag pieces from here onto the board.</div>
+          <div style="height:10px"></div>
+          <canvas id="trayCanvas" style="width:100%; height: 260px; border-radius:18px; border:3px solid rgba(0,0,0,.08); background:rgba(255,255,255,.75);"></canvas>
+          <div style="height:10px"></div>
+          <div class="legend">Snaps when close to the correct spot. The edges interlock like real jigsaw pieces.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- Utilities ----------
+  const $ = (sel) => document.querySelector(sel);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rand = (a,b) => a + Math.random()*(b-a);
+
+  function toast(msg, ms=1200){
+    const el = $('#toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> el.style.display='none', ms);
+  }
+
+  // ---------- Audio (Web Audio API) ----------
+  const AudioSys = (() => {
+    let ctx = null;
+    let master = null;
+    let muted = false;
+    let musicNode = null;
+    let musicGain = null;
+
+    function ensure(){
+      if (ctx) return;
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = 0.9;
+      master.connect(ctx.destination);
+
+      // music: two oscillators + slow LFO + soft lowpass
+      const out = ctx.createGain();
+      out.gain.value = 0.15;
+      const lp = ctx.createBiquadFilter();
+      lp.type='lowpass'; lp.frequency.value = 900;
+
+      const o1 = ctx.createOscillator();
+      const o2 = ctx.createOscillator();
+      o1.type = 'sine';
+      o2.type = 'triangle';
+      o1.frequency.value = 220;
+      o2.frequency.value = 330;
+
+      const lfo = ctx.createOscillator();
+      lfo.type='sine';
+      lfo.frequency.value = 0.09;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 18;
+      lfo.connect(lfoGain);
+      lfoGain.connect(o1.frequency);
+
+      // gentle rhythm with periodic gain dips
+      const trem = ctx.createOscillator();
+      trem.type='sine'; trem.frequency.value = 2.2;
+      const tremGain = ctx.createGain();
+      tremGain.gain.value = 0.35;
+      trem.connect(tremGain);
+      tremGain.connect(out.gain);
+
+      musicGain = ctx.createGain();
+      musicGain.gain.value = 1.0;
+
+      o1.connect(lp); o2.connect(lp);
+      lp.connect(out);
+      out.connect(musicGain);
+      musicGain.connect(master);
+
+      o1.start(); o2.start(); lfo.start(); trem.start();
+      musicNode = {o1,o2,lp,out,lfo,trem};
+    }
+
+    function setMuted(m){
+      muted = !!m;
+      if (!ctx) return;
+      master.gain.setTargetAtTime(muted ? 0 : 0.9, ctx.currentTime, 0.02);
+    }
+
+    function resume(){
+      ensure();
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+
+    function beep(type){
+      // one-shot sfx
+      if (!ctx) return;
+      const t0 = ctx.currentTime;
+      const g = ctx.createGain();
+      g.gain.value = 0.0001;
+      g.connect(master);
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      const f = type==='snap' ? 660 : type==='win' ? 880 : 440;
+      o.frequency.setValueAtTime(f, t0);
+      o.frequency.exponentialRampToValueAtTime(f*1.25, t0+0.09);
+      o.connect(g);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(type==='win'?0.35:0.22, t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + (type==='win'?0.55:0.18));
+      o.start(t0);
+      o.stop(t0 + (type==='win'?0.6:0.2));
+    }
+
+    function chordWin(){
+      if (!ctx) return;
+      const base = 440;
+      [0,4,7,12].forEach((st,i)=>{
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type='triangle';
+        const f = base * Math.pow(2, st/12);
+        o.frequency.value = f;
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(master);
+        const t0 = ctx.currentTime + i*0.03;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.22, t0+0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0+0.65);
+        o.start(t0);
+        o.stop(t0+0.7);
+      });
+    }
+
+    return { ensure, resume, setMuted, beep, chordWin, get muted(){return muted;}, get ctx(){return ctx;} };
+  })();
+
+  // ---------- Procedural Images (Canvas drawing) ----------
+  function makeArtCanvas(kind, size=900){
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d');
+
+    // background gradient
+    const grad = g.createLinearGradient(0,0,size,size);
+    grad.addColorStop(0,'#fff6d5');
+    grad.addColorStop(1,'#d6f7ff');
+    g.fillStyle = grad;
+    g.fillRect(0,0,size,size);
+
+    // playful border dots
+    g.save();
+    g.globalAlpha = 0.35;
+    for(let i=0;i<120;i++){
+      g.fillStyle = ['#ff4d6d','#00b894','#6c5ce7','#ffd93d','#4d96ff'][i%5];
+      g.beginPath();
+      g.arc(rand(0,size), rand(0,size), rand(5,14), 0, Math.PI*2);
+      g.fill();
+    }
+    g.restore();
+
+    if (kind==='taj'){
+      drawTaj(g,size);
+    } else if (kind==='peacock'){
+      drawPeacock(g,size);
+    } else if (kind==='elephant'){
+      drawElephant(g,size);
+    } else if (kind==='lotus'){
+      drawLotus(g,size);
+    }
+
+    // vignette
+    g.save();
+    const v = g.createRadialGradient(size/2,size/2, size*0.2, size/2,size/2, size*0.7);
+    v.addColorStop(0,'rgba(255,255,255,0)');
+    v.addColorStop(1,'rgba(0,0,0,0.08)');
+    g.fillStyle=v;
+    g.fillRect(0,0,size,size);
+    g.restore();
+
+    return c;
+  }
+
+  function drawTaj(g,s){
+    // sky
+    const sky = g.createLinearGradient(0,0,0,s);
+    sky.addColorStop(0,'#bde0fe');
+    sky.addColorStop(0.7,'#fff6d5');
+    g.fillStyle=sky; g.fillRect(0,0,s,s);
+
+    // ground
+    g.fillStyle = '#b7efc5';
+    g.fillRect(0,s*0.7,s,s*0.3);
+
+    // reflecting pool
+    g.save();
+    g.globalAlpha = 0.75;
+    g.fillStyle = '#74c0fc';
+    g.fillRect(s*0.44, s*0.72, s*0.12, s*0.22);
+    g.restore();
+
+    // Taj body
+    g.save();
+    g.translate(s*0.5, s*0.64);
+    const baseW = s*0.42, baseH = s*0.18;
+    roundRect(g, -baseW/2, -baseH, baseW, baseH, 22);
+    g.fillStyle='#ffffff';
+    g.fill();
+    g.strokeStyle='rgba(0,0,0,.12)'; g.lineWidth=6; g.stroke();
+
+    // main dome
+    g.beginPath();
+    g.arc(0, -baseH, s*0.12, Math.PI, 0);
+    g.lineTo(s*0.12, -baseH);
+    g.closePath();
+    g.fillStyle='#ffffff'; g.fill();
+    g.stroke();
+
+    // minarets
+    for(const x of [-1,1]){
+      g.save();
+      g.translate(x*baseW*0.43, 0);
+      roundRect(g, -s*0.03, -baseH*1.35, s*0.06, baseH*1.35, 18);
+      g.fillStyle='#ffffff'; g.fill(); g.stroke();
+      g.beginPath();
+      g.arc(0, -baseH*1.35, s*0.04, Math.PI, 0);
+      g.closePath();
+      g.fill(); g.stroke();
+      g.restore();
+    }
+
+    // arches
+    g.fillStyle='#e9ecef';
+    for(let i=-2;i<=2;i++){
+      g.save();
+      g.translate(i*s*0.06, -baseH*0.35);
+      g.beginPath();
+      g.arc(0,0,s*0.035, Math.PI, 0);
+      g.lineTo(s*0.035, s*0.06);
+      g.lineTo(-s*0.035, s*0.06);
+      g.closePath();
+      g.fill();
+      g.restore();
+    }
+
+    // spire
+    g.strokeStyle='rgba(0,0,0,.25)';
+    g.lineWidth=6;
+    g.beginPath();
+    g.moveTo(0, -baseH - s*0.12);
+    g.lineTo(0, -baseH - s*0.20);
+    g.stroke();
+
+    g.restore();
+
+    // text
+    g.save();
+    g.fillStyle='rgba(0,0,0,.55)';
+    g.font=`900 ${Math.round(s*0.06)}px system-ui`;
+    g.textAlign='center';
+    g.fillText('TAJ MAHAL', s*0.5, s*0.13);
+    g.restore();
+  }
+
+  function drawPeacock(g,s){
+    // background
+    const bg = g.createLinearGradient(0,0,0,s);
+    bg.addColorStop(0,'#e0fbfc');
+    bg.addColorStop(1,'#ffeaa7');
+    g.fillStyle=bg; g.fillRect(0,0,s,s);
+
+    // tail fan
+    g.save();
+    g.translate(s*0.52, s*0.62);
+    for(let i=0;i<36;i++){
+      const a = (i-18)*0.055;
+      const len = s*0.40 + Math.sin(i*0.7)*s*0.02;
+      g.save();
+      g.rotate(a);
+      g.strokeStyle = `hsla(${160+i*2}, 85%, 45%, 0.95)`;
+      g.lineWidth = 10;
+      g.beginPath();
+      g.moveTo(0,0);
+      g.lineTo(0,-len);
+      g.stroke();
+
+      // eye spot
+      g.translate(0, -len);
+      g.fillStyle = `hsla(${210+i*2}, 90%, 55%, 0.95)`;
+      g.beginPath(); g.arc(0,0,s*0.018,0,Math.PI*2); g.fill();
+      g.fillStyle = `hsla(${50+i*2}, 95%, 55%, 0.95)`;
+      g.beginPath(); g.arc(0,0,s*0.010,0,Math.PI*2); g.fill();
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.beginPath(); g.arc(0,0,s*0.005,0,Math.PI*2); g.fill();
+      g.restore();
+    }
+    g.restore();
+
+    // body
+    g.save();
+    g.translate(s*0.52, s*0.67);
+    g.fillStyle='#1f7a8c';
+    g.beginPath();
+    g.ellipse(0,0, s*0.07, s*0.10, 0, 0, Math.PI*2);
+    g.fill();
+    g.fillStyle='#0b4f6c';
+    g.beginPath();
+    g.ellipse(0,-s*0.12, s*0.05, s*0.06, 0, 0, Math.PI*2);
+    g.fill();
+
+    // beak
+    g.fillStyle='#f59f00';
+    g.beginPath();
+    g.moveTo(s*0.04, -s*0.12);
+    g.lineTo(s*0.09, -s*0.10);
+    g.lineTo(s*0.04, -s*0.08);
+    g.closePath(); g.fill();
+
+    // crest
+    g.strokeStyle='#0b4f6c'; g.lineWidth=6;
+    for(let i=-2;i<=2;i++){
+      g.beginPath();
+      g.moveTo(i*s*0.01, -s*0.20);
+      g.lineTo(i*s*0.02, -s*0.26);
+      g.stroke();
+      g.fillStyle='#6c5ce7';
+      g.beginPath(); g.arc(i*s*0.02, -s*0.27, s*0.010, 0, Math.PI*2); g.fill();
+    }
+
+    // feet
+    g.strokeStyle='rgba(0,0,0,.45)'; g.lineWidth=5;
+    g.beginPath(); g.moveTo(-s*0.02, s*0.10); g.lineTo(-s*0.03, s*0.18); g.stroke();
+    g.beginPath(); g.moveTo(s*0.02, s*0.10); g.lineTo(s*0.03, s*0.18); g.stroke();
+
+    g.restore();
+
+    g.save();
+    g.fillStyle='rgba(0,0,0,.55)';
+    g.font=`900 ${Math.round(s*0.06)}px system-ui`;
+    g.textAlign='center';
+    g.fillText('PEACOCK', s*0.5, s*0.13);
+    g.restore();
+  }
+
+  function drawElephant(g,s){
+    const bg = g.createLinearGradient(0,0,0,s);
+    bg.addColorStop(0,'#ffe8cc');
+    bg.addColorStop(1,'#bde0fe');
+    g.fillStyle=bg; g.fillRect(0,0,s,s);
+
+    // sun
+    g.save();
+    g.globalAlpha=0.9;
+    g.fillStyle='#ffd93d';
+    g.beginPath(); g.arc(s*0.18,s*0.2,s*0.08,0,Math.PI*2); g.fill();
+    g.restore();
+
+    // elephant
+    g.save();
+    g.translate(s*0.52, s*0.62);
+    g.fillStyle='#8d99ae';
+    g.strokeStyle='rgba(0,0,0,.18)';
+    g.lineWidth=8;
+
+    // body
+    g.beginPath();
+    g.ellipse(0,0, s*0.22, s*0.15, 0, 0, Math.PI*2);
+    g.fill(); g.stroke();
+
+    // head
+    g.beginPath();
+    g.ellipse(-s*0.22, -s*0.05, s*0.14, s*0.12, 0, 0, Math.PI*2);
+    g.fill(); g.stroke();
+
+    // ear
+    g.fillStyle='#a8b2c3';
+    g.beginPath();
+    g.ellipse(-s*0.30, -s*0.08, s*0.11, s*0.09, -0.4, 0, Math.PI*2);
+    g.fill(); g.stroke();
+
+    // trunk
+    g.fillStyle='#8d99ae';
+    g.beginPath();
+    g.moveTo(-s*0.28, s*0.02);
+    g.bezierCurveTo(-s*0.42, s*0.12, -s*0.36, s*0.28, -s*0.22, s*0.30);
+    g.bezierCurveTo(-s*0.10, s*0.33, -s*0.10, s*0.22, -s*0.18, s*0.18);
+    g.bezierCurveTo(-s*0.28, s*0.13, -s*0.22, s*0.06, -s*0.20, s*0.04);
+    g.closePath();
+    g.fill(); g.stroke();
+
+    // eye
+    g.fillStyle='rgba(0,0,0,.5)';
+    g.beginPath(); g.arc(-s*0.26, -s*0.08, s*0.01, 0, Math.PI*2); g.fill();
+
+    // tusk
+    g.strokeStyle='#ffffff'; g.lineWidth=10;
+    g.beginPath();
+    g.moveTo(-s*0.18, s*0.03);
+    g.quadraticCurveTo(-s*0.11, s*0.08, -s*0.12, s*0.14);
+    g.stroke();
+
+    // legs
+    g.strokeStyle='rgba(0,0,0,.18)'; g.lineWidth=8;
+    g.fillStyle='#8d99ae';
+    for(const x of [-0.12,0.0,0.12,0.22]){
+      roundRect(g, (x*s) - s*0.03, s*0.10, s*0.06, s*0.14, 16);
+      g.fill(); g.stroke();
+    }
+
+    // decorative blanket
+    g.fillStyle='#ff4d6d';
+    roundRect(g, -s*0.05, -s*0.08, s*0.22, s*0.10, 18);
+    g.fill();
+    g.fillStyle='#ffd93d';
+    for(let i=0;i<6;i++){
+      g.beginPath();
+      g.arc(-s*0.03 + i*s*0.04, -s*0.03, s*0.01, 0, Math.PI*2);
+      g.fill();
+    }
+
+    g.restore();
+
+    g.save();
+    g.fillStyle='rgba(0,0,0,.55)';
+    g.font=`900 ${Math.round(s*0.06)}px system-ui`;
+    g.textAlign='center';
+    g.fillText('ELEPHANT', s*0.5, s*0.13);
+    g.restore();
+  }
+
+  function drawLotus(g,s){
+    const bg = g.createLinearGradient(0,0,0,s);
+    bg.addColorStop(0,'#caffbf');
+    bg.addColorStop(1,'#bdb2ff');
+    g.fillStyle=bg; g.fillRect(0,0,s,s);
+
+    // water
+    g.save();
+    g.globalAlpha=0.8;
+    g.fillStyle='#74c0fc';
+    g.fillRect(0, s*0.65, s, s*0.35);
+    g.restore();
+
+    // lotus petals
+    g.save();
+    g.translate(s*0.5, s*0.62);
+    for(let layer=0; layer<2; layer++){
+      for(let i=0;i<10;i++){
+        const a = (i/10)*Math.PI*2 + (layer?0.15:0);
+        const r = layer? s*0.10 : s*0.14;
+        g.save();
+        g.rotate(a);
+        const petalW = layer? s*0.11 : s*0.13;
+        const petalH = layer? s*0.20 : s*0.24;
+        g.fillStyle = layer? '#ff8fab' : '#ffb3c6';
+        g.strokeStyle='rgba(0,0,0,.12)';
+        g.lineWidth=6;
+        g.beginPath();
+        g.moveTo(0, -r);
+        g.quadraticCurveTo(petalW*0.55, -r - petalH*0.35, 0, -r - petalH);
+        g.quadraticCurveTo(-petalW*0.55, -r - petalH*0.35, 0, -r);
+        g.closePath();
+        g.fill(); g.stroke();
+        g.restore();
+      }
+    }
+
+    // center
+    g.fillStyle='#ffd93d';
+    g.beginPath();
+    g.arc(0, -s*0.05, s*0.055, 0, Math.PI*2);
+    g.fill();
+    g.fillStyle='rgba(0,0,0,.25)';
+    for(let i=0;i<10;i++){
+      g.beginPath();
+      g.arc(Math.cos(i)*s*0.03, -s*0.05 + Math.sin(i)*s*0.02, s*0.006, 0, Math.PI*2);
+      g.fill();
+    }
+
+    // leaves
+    g.fillStyle='#2d6a4f';
+    for(const x of [-1,1]){
+      g.save();
+      g.translate(x*s*0.22, s*0.10);
+      g.rotate(x*0.25);
+      g.beginPath();
+      g.ellipse(0,0, s*0.18, s*0.08, 0, 0, Math.PI*2);
+      g.fill();
+      g.restore();
+    }
+
+    g.restore();
+
+    g.save();
+    g.fillStyle='rgba(0,0,0,.55)';
+    g.font=`900 ${Math.round(s*0.06)}px system-ui`;
+    g.textAlign='center';
+    g.fillText('LOTUS', s*0.5, s*0.13);
+    g.restore();
+  }
+
+  function roundRect(ctx, x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  // ---------- Jigsaw geometry ----------
+  // For each piece, store edges: top/right/bottom/left
+  // 0 = flat, 1 = knob (out), -1 = socket (in)
+
+  function generateEdgeMap(rows, cols){
+    const edges = [];
+    for(let r=0;r<rows;r++){
+      edges[r] = [];
+      for(let c=0;c<cols;c++){
+        edges[r][c] = {t:0,r:0,b:0,l:0};
+      }
+    }
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const e = edges[r][c];
+        e.t = (r===0) ? 0 : -edges[r-1][c].b;
+        e.l = (c===0) ? 0 : -edges[r][c-1].r;
+        e.r = (c===cols-1) ? 0 : (Math.random()<0.5?1:-1);
+        e.b = (r===rows-1) ? 0 : (Math.random()<0.5?1:-1);
+      }
+    }
+    return edges;
+  }
+
+  function buildPiecePath(ctx, x,y,w,h, e, knobSize){
+    // Build a jigsaw outline path in local space with bezier bumps.
+    const ks = knobSize;
+    const mid = (a,b)=> (a+b)/2;
+    ctx.beginPath();
+
+    // top edge: left->right
+    ctx.moveTo(x, y);
+    if (e.t === 0){
+      ctx.lineTo(x+w, y);
+    } else {
+      const dir = e.t; // 1 knob outward (up), -1 inward (down)
+      const mx = x + w/2;
+      ctx.lineTo(x + w*0.33, y);
+      // bump
+      ctx.bezierCurveTo(x + w*0.38, y, x + w*0.40, y - dir*ks*0.75, mx, y - dir*ks);
+      ctx.bezierCurveTo(x + w*0.60, y - dir*ks*0.75, x + w*0.62, y, x + w*0.67, y);
+      ctx.lineTo(x+w, y);
+    }
+
+    // right edge: top->bottom
+    if (e.r === 0){
+      ctx.lineTo(x+w, y+h);
+    } else {
+      const dir = e.r; // 1 outward (right), -1 inward (left)
+      const my = y + h/2;
+      ctx.lineTo(x+w, y + h*0.33);
+      ctx.bezierCurveTo(x+w, y + h*0.38, x+w + dir*ks*0.75, y + h*0.40, x+w + dir*ks, my);
+      ctx.bezierCurveTo(x+w + dir*ks*0.75, y + h*0.60, x+w, y + h*0.62, x+w, y + h*0.67);
+      ctx.lineTo(x+w, y+h);
+    }
+
+    // bottom edge: right->left
+    if (e.b === 0){
+      ctx.lineTo(x, y+h);
+    } else {
+      const dir = e.b; // 1 outward (down), -1 inward (up)
+      const mx = x + w/2;
+      ctx.lineTo(x + w*0.67, y+h);
+      ctx.bezierCurveTo(x + w*0.62, y+h, x + w*0.60, y+h + dir*ks*0.75, mx, y+h + dir*ks);
+      ctx.bezierCurveTo(x + w*0.40, y+h + dir*ks*0.75, x + w*0.38, y+h, x + w*0.33, y+h);
+      ctx.lineTo(x, y+h);
+    }
+
+    // left edge: bottom->top
+    if (e.l === 0){
+      ctx.closePath();
+    } else {
+      const dir = e.l; // 1 outward (left), -1 inward (right)
+      const my = y + h/2;
+      ctx.lineTo(x, y + h*0.67);
+      ctx.bezierCurveTo(x, y + h*0.62, x - dir*ks*0.75, y + h*0.60, x - dir*ks, my);
+      ctx.bezierCurveTo(x - dir*ks*0.75, y + h*0.40, x, y + h*0.38, x, y + h*0.33);
+      ctx.lineTo(x, y);
+      ctx.closePath();
+    }
+  }
+
+  // ---------- Game State ----------
+  const Game = {
+    imageKey: null,
+    imageLabel: null,
+    rows: 0,
+    cols: 0,
+    moves: 0,
+    placed: 0,
+    total: 0,
+    started: false,
+    won: false,
+
+    // canvases
+    canvas: null,
+    ctx: null,
+    tray: null,
+    tctx: null,
+
+    // board layout
+    board: {x:0,y:0,w:0,h:0},
+    trayArea: {x:0,y:0,w:0,h:0},
+
+    // puzzle art
+    art: null,      // offscreen full art canvas
+
+    // pieces
+    pieces: [],     // all pieces objects
+    zCounter: 1,
+
+    // pointer state
+    activePiece: null,
+    activePointerId: null,
+    dragOffX: 0,
+    dragOffY: 0,
+
+    // rendering
+    dpr: 1,
+    lastTs: 0,
+
+    // hint
+    hintUntil: 0,
+  };
+
+  function difficultyToRC(diff){
+    if (diff==='easy') return [3,3];
+    if (diff==='medium') return [4,4];
+    return [5,5];
+  }
+
+  function resetGame(){
+    Game.moves = 0;
+    Game.placed = 0;
+    Game.total = Game.rows*Game.cols;
+    Game.started = false;
+    Game.won = false;
+    Game.activePiece = null;
+    Game.activePointerId = null;
+    Game.zCounter = 1;
+    Game.hintUntil = 0;
+    $('#hudMoves').textContent = `Moves: ${Game.moves}`;
+    $('#hudPlaced').textContent = `Placed: ${Game.placed}/${Game.total}`;
+  }
+
+  function makePieces(){
+    const rows = Game.rows, cols = Game.cols;
+    const board = Game.board;
+    const pw = board.w / cols;
+    const ph = board.h / rows;
+    const edges = generateEdgeMap(rows, cols);
+
+    const knobSize = Math.min(pw, ph) * 0.28;
+
+    const pieces = [];
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const e = edges[r][c];
+        // path bounds need to include outward knobs
+        const extL = e.l===1 ? knobSize : 0;
+        const extR = e.r===1 ? knobSize : 0;
+        const extT = e.t===1 ? knobSize : 0;
+        const extB = e.b===1 ? knobSize : 0;
+        const cutW = pw + (e.l!==0?knobSize:0) + (e.r!==0?knobSize:0);
+        const cutH = ph + (e.t!==0?knobSize:0) + (e.b!==0?knobSize:0);
+        const offX = (e.l!==0?knobSize:0);
+        const offY = (e.t!==0?knobSize:0);
+
+        const pieceCanvas = document.createElement('canvas');
+        pieceCanvas.width = Math.ceil(cutW * Game.dpr);
+        pieceCanvas.height = Math.ceil(cutH * Game.dpr);
+        const pctx = pieceCanvas.getContext('2d');
+        pctx.setTransform(Game.dpr,0,0,Game.dpr,0,0);
+
+        // clip to jigsaw shape
+        buildPiecePath(pctx, 0 + offX, 0 + offY, pw, ph, e, knobSize);
+        pctx.save();
+        pctx.clip();
+
+        // draw art with proper offset
+        const sx = c*pw - offX;
+        const sy = r*ph - offY;
+        pctx.drawImage(Game.art, board.x + sx, board.y + sy, cutW, cutH, 0, 0, cutW, cutH);
+
+        // subtle shading
+        pctx.globalAlpha = 0.18;
+        const shade = pctx.createLinearGradient(0,0,cutW,cutH);
+        shade.addColorStop(0,'#ffffff');
+        shade.addColorStop(1,'#000000');
+        pctx.fillStyle = shade;
+        pctx.fillRect(0,0,cutW,cutH);
+        pctx.restore();
+
+        // outline
+        pctx.lineWidth = 3.5;
+        pctx.strokeStyle = 'rgba(0,0,0,.22)';
+        buildPiecePath(pctx, 0 + offX, 0 + offY, pw, ph, e, knobSize);
+        pctx.stroke();
+
+        // correct position on main canvas
+        const correctX = board.x + c*pw - offX;
+        const correctY = board.y + r*ph - offY;
+
+        // start position in tray area (random)
+        const tx = rand(Game.trayArea.x + 10, Game.trayArea.x + Game.trayArea.w - cutW - 10);
+        const ty = rand(Game.trayArea.y + 10, Game.trayArea.y + Game.trayArea.h - cutH - 10);
+
+        pieces.push({
+          id: r*cols + c,
+          r,c,
+          edges: e,
+          knobSize,
+          offX, offY,
+          w: cutW,
+          h: cutH,
+          img: pieceCanvas,
+          x: tx,
+          y: ty,
+          correctX,
+          correctY,
+          placed: false,
+          z: Game.zCounter++,
+        });
+      }
+    }
+
+    // Shuffle z
+    pieces.sort(()=>Math.random()-0.5);
+    pieces.forEach((p,i)=>p.z=i+1);
+
+    Game.pieces = pieces;
+  }
+
+  function computeLayout(){
+    const stage = $('#stage');
+    const rect = stage.getBoundingClientRect();
+    const cw = Math.floor(rect.width);
+    const ch = Math.floor(rect.height);
+
+    Game.dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+
+    // Board takes most of stage; tray is separate canvas in sidebar/bottom card.
+    Game.canvas = $('#gameCanvas');
+    Game.ctx = Game.canvas.getContext('2d');
+    Game.canvas.width = Math.floor(cw * Game.dpr);
+    Game.canvas.height = Math.floor(ch * Game.dpr);
+    Game.ctx.setTransform(Game.dpr,0,0,Game.dpr,0,0);
+
+    // Board inside stage
+    const pad = 18;
+    const hudH = 0;
+
+    // Board aspect 1:1 based on art; but keep some margin
+    const maxW = cw - pad*2;
+    const maxH = ch - pad*2;
+    const size = Math.min(maxW, maxH);
+    const bx = Math.floor((cw - size)/2);
+    const by = Math.floor((ch - size)/2);
+    Game.board = {x: bx, y: by, w: size, h: size};
+
+    // Tray canvas layout
+    Game.tray = $('#trayCanvas');
+    const tr = Game.tray.getBoundingClientRect();
+    Game.tctx = Game.tray.getContext('2d');
+    Game.tray.width = Math.floor(tr.width * Game.dpr);
+    Game.tray.height = Math.floor(tr.height * Game.dpr);
+    Game.tctx.setTransform(Game.dpr,0,0,Game.dpr,0,0);
+
+    Game.trayArea = {x:0,y:0,w: tr.width, h: tr.height};
+
+    // Rebuild art at board size
+    const art = makeArtCanvas(Game.imageKey, 900);
+    Game.art = document.createElement('canvas');
+    Game.art.width = Math.floor(cw * Game.dpr);
+    Game.art.height = Math.floor(ch * Game.dpr);
+    const actx = Game.art.getContext('2d');
+    actx.setTransform(Game.dpr,0,0,Game.dpr,0,0);
+    actx.imageSmoothingEnabled = true;
+    // draw scaled to board
+    actx.drawImage(art, 0,0,900,900, Game.board.x, Game.board.y, Game.board.w, Game.board.h);
+  }
+
+  function inRect(px,py, r){
+    return px>=r.x && px<=r.x+r.w && py>=r.y && py<=r.y+r.h;
+  }
+
+  function pieceHit(p, px, py){
+    // quick bbox hit
+    if (px < p.x || py < p.y || px > p.x+p.w || py > p.y+p.h) return false;
+    // pixel-perfect-ish hit by alpha in piece canvas
+    const lx = px - p.x;
+    const ly = py - p.y;
+    const ix = Math.floor(lx * Game.dpr);
+    const iy = Math.floor(ly * Game.dpr);
+    try{
+      const d = p.img.getContext('2d').getImageData(ix, iy, 1, 1).data;
+      return d[3] > 10;
+    } catch { return true; }
+  }
+
+  function pickPiece(px,py, inTray){
+    const list = Game.pieces.filter(p => !p.placed && (inTray ? true : true));
+    // topmost by z
+    list.sort((a,b)=>b.z-a.z);
+    for(const p of list){
+      // if picking in tray, only consider pieces currently in tray bounds
+      const insideTray = inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen);
+      if (inTray && !insideTray) continue;
+      if (!inTray && insideTray) {
+        // allow picking from tray by main canvas too? skip
+      }
+      if (pieceHit(p, px, py)) return p;
+    }
+    return null;
+  }
+
+  function updateHUD(){
+    $('#hudMoves').textContent = `Moves: ${Game.moves}`;
+    $('#hudPlaced').textContent = `Placed: ${Game.placed}/${Game.total}`;
+  }
+
+  function trySnap(p){
+    const dx = (p.x - p.correctX);
+    const dy = (p.y - p.correctY);
+    const dist = Math.hypot(dx,dy);
+    const thresh = Math.min(Game.board.w/Game.cols, Game.board.h/Game.rows) * 0.22;
+    if (dist < thresh){
+      p.x = p.correctX;
+      p.y = p.correctY;
+      p.placed = true;
+      Game.placed++;
+      updateHUD();
+      AudioSys.beep('snap');
+      if (Game.placed === Game.total){
+        win();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function win(){
+    Game.won = true;
+    $('#winOverlay').classList.add('show');
+    AudioSys.chordWin();
+    startConfetti();
+  }
+
+  // ---------- Rendering ----------
+  function drawBoardBackground(ctx){
+    const b = Game.board;
+    // board shadow
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,.08)';
+    roundRect(ctx, b.x+6, b.y+8, b.w, b.h, 18);
+    ctx.fill();
+    // board frame
+    ctx.fillStyle = 'rgba(255,255,255,.92)';
+    roundRect(ctx, b.x, b.y, b.w, b.h, 18);
+    ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.10)';
+    ctx.lineWidth=4;
+    ctx.stroke();
+
+    // faint preview (hint)
+    if (performance.now() < Game.hintUntil){
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(Game.art, 0,0, Game.art.width/Game.dpr, Game.art.height/Game.dpr);
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.save();
+      ctx.globalAlpha = 0.10;
+      ctx.drawImage(Game.art, 0,0, Game.art.width/Game.dpr, Game.art.height/Game.dpr);
+      ctx.restore();
+    }
+
+    // grid lines
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle='#000';
+    for(let i=1;i<Game.cols;i++){
+      const x = b.x + i*(b.w/Game.cols);
+      ctx.beginPath(); ctx.moveTo(x, b.y); ctx.lineTo(x, b.y+b.h); ctx.stroke();
+    }
+    for(let i=1;i<Game.rows;i++){
+      const y = b.y + i*(b.h/Game.rows);
+      ctx.beginPath(); ctx.moveTo(b.x, y); ctx.lineTo(b.x+b.w, y); ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawPiecesOn(ctx){
+    const pieces = Game.pieces.slice().sort((a,b)=>a.z-b.z);
+    for(const p of pieces){
+      if (p.placed) continue;
+      // only draw pieces that are on this canvas region
+      if (ctx === Game.ctx){
+        // draw pieces currently on board stage area (not in tray)
+        if (inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen)) continue;
+      } else {
+        // tray canvas draws pieces inside tray
+        if (!inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen)) continue;
+      }
+      ctx.drawImage(p.img, p.x, p.y, p.w, p.h);
+      // glow active
+      if (Game.activePiece === p){
+        ctx.save();
+        ctx.globalAlpha=0.35;
+        ctx.strokeStyle='#ff4d6d';
+        ctx.lineWidth=6;
+        roundRect(ctx, p.x+4, p.y+4, p.w-8, p.h-8, 18);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawPlacedPieces(ctx){
+    // draw placed pieces on board
+    const placed = Game.pieces.filter(p=>p.placed).sort((a,b)=>a.id-b.id);
+    for(const p of placed){
+      ctx.drawImage(p.img, p.x, p.y, p.w, p.h);
+    }
+  }
+
+  function render(){
+    if (!Game.started) return;
+    const ctx = Game.ctx;
+    ctx.clearRect(0,0, Game.canvas.width/Game.dpr, Game.canvas.height/Game.dpr);
+    drawBoardBackground(ctx);
+    drawPlacedPieces(ctx);
+    drawPiecesOn(ctx);
+
+    // Tray
+    const t = Game.tctx;
+    t.clearRect(0,0, Game.tray.width/Game.dpr, Game.tray.height/Game.dpr);
+    // tray background
+    t.save();
+    t.globalAlpha=0.9;
+    const grd = t.createLinearGradient(0,0, Game.trayArea.w, Game.trayArea.h);
+    grd.addColorStop(0,'#fff');
+    grd.addColorStop(1,'#f1f3f5');
+    t.fillStyle=grd;
+    roundRect(t, 0,0, Game.trayArea.w, Game.trayArea.h, 18);
+    t.fill();
+    t.strokeStyle='rgba(0,0,0,.10)'; t.lineWidth=4; t.stroke();
+    t.restore();
+    drawPiecesOn(t);
+
+    requestAnimationFrame(render);
+  }
+
+  // ---------- Input handling (mouse + touch/pointer) ----------
+  function setupPointer(){
+    // We'll use pointer events on both canvases.
+    const stage = $('#stage');
+
+    const onDown = (ev, fromTray) => {
+      if (!Game.started || Game.won) return;
+      AudioSys.resume();
+
+      const rect = (fromTray ? Game.tray : Game.canvas).getBoundingClientRect();
+      const px = ev.clientX - rect.left;
+      const py = ev.clientY - rect.top;
+
+      // map to screen coords for unified piece positions: pieces are in stage coordinate system,
+      // but tray is in tray coordinate system. We'll store tray pieces in tray coord space, board pieces in stage coord space.
+      // To simplify: we store all pieces in STAGE coord space. So tray hit-testing uses trayAreaScreen mapped into stage coords.
+      // We'll compute trayAreaScreen when layout changes.
+
+      const sx = fromTray ? (Game.trayToStageX(px)) : px;
+      const sy = fromTray ? (Game.trayToStageY(py)) : py;
+
+      const p = findTopPieceAt(sx, sy);
+      if (!p) return;
+
+      Game.activePiece = p;
+      Game.activePointerId = ev.pointerId;
+      p.z = ++Game.zCounter;
+      Game.dragOffX = sx - p.x;
+      Game.dragOffY = sy - p.y;
+
+      (fromTray ? Game.tray : Game.canvas).setPointerCapture(ev.pointerId);
+      ev.preventDefault();
+    };
+
+    const onMove = (ev, fromTray) => {
+      if (!Game.started || Game.won) return;
+      if (!Game.activePiece || Game.activePointerId !== ev.pointerId) return;
+
+      const rect = (fromTray ? Game.tray : Game.canvas).getBoundingClientRect();
+      const px = ev.clientX - rect.left;
+      const py = ev.clientY - rect.top;
+      const sx = fromTray ? (Game.trayToStageX(px)) : px;
+      const sy = fromTray ? (Game.trayToStageY(py)) : py;
+
+      const p = Game.activePiece;
+      p.x = sx - Game.dragOffX;
+      p.y = sy - Game.dragOffY;
+      ev.preventDefault();
+    };
+
+    const onUp = (ev, fromTray) => {
+      if (!Game.started || Game.won) return;
+      if (!Game.activePiece || Game.activePointerId !== ev.pointerId) return;
+
+      const p = Game.activePiece;
+      Game.activePiece = null;
+      Game.activePointerId = null;
+      Game.moves++;
+      updateHUD();
+      trySnap(p);
+      ev.preventDefault();
+    };
+
+    const opts = {passive:false};
+    Game.canvas.addEventListener('pointerdown', (e)=>onDown(e,false), opts);
+    Game.canvas.addEventListener('pointermove', (e)=>onMove(e,false), opts);
+    Game.canvas.addEventListener('pointerup', (e)=>onUp(e,false), opts);
+    Game.canvas.addEventListener('pointercancel', (e)=>onUp(e,false), opts);
+
+    Game.tray.addEventListener('pointerdown', (e)=>onDown(e,true), opts);
+    Game.tray.addEventListener('pointermove', (e)=>onMove(e,true), opts);
+    Game.tray.addEventListener('pointerup', (e)=>onUp(e,true), opts);
+    Game.tray.addEventListener('pointercancel', (e)=>onUp(e,true), opts);
+  }
+
+  function findTopPieceAt(sx,sy){
+    // find topmost unplaced piece containing point
+    const list = Game.pieces.filter(p=>!p.placed).sort((a,b)=>b.z-a.z);
+    for(const p of list){
+      if (pieceHit(p, sx, sy)) return p;
+    }
+    return null;
+  }
+
+  // ---------- Tray mapping ----------
+  function computeTrayMapping(){
+    // pieces use stage coordinate system. We embed tray as an area just below board inside stage coords.
+    // But our tray is a separate canvas element. We'll map tray canvas coordinates to stage coordinates
+    // by assigning a virtual tray rectangle in stage coords.
+
+    // Virtual tray rect sits below the board if stage is narrow, else to the right of board? We'll keep simple:
+    // Put virtual tray off-board area inside stage bounds: left-bottom corner.
+    const srect = $('#stage').getBoundingClientRect();
+    const cw = srect.width;
+    const ch = srect.height;
+
+    // Virtual tray area in stage coords (same units as canvas CSS pixels)
+    // We'll put it centered at bottom if stage tall enough, else overlapping right side.
+    const trayW = Math.min(cw, 360);
+    const trayH = 240;
+    const tx = (cw - trayW)/2;
+    const ty = ch - trayH - 14;
+    Game.trayAreaScreen = {x: tx, y: ty, w: trayW, h: trayH};
+
+    // Mapping functions from trayCanvas local to stage coords
+    // trayCanvas local is (0..trayCanvasCSSwidth)
+    const tr = Game.tray.getBoundingClientRect();
+    const scaleX = Game.trayAreaScreen.w / tr.width;
+    const scaleY = Game.trayAreaScreen.h / tr.height;
+    Game.trayToStageX = (px)=> Game.trayAreaScreen.x + px*scaleX;
+    Game.trayToStageY = (py)=> Game.trayAreaScreen.y + py*scaleY;
+
+    // And for rendering tray pieces into tray canvas, we draw pieces in stage coords, but only those inside trayAreaScreen,
+    // shifting them into tray local coordinates.
+    // We'll keep piece positions in stage coords always.
+  }
+
+  // Adjust drawPiecesOn for tray: convert stage coord to tray local by drawing with translated context.
+  const _drawPiecesOn = drawPiecesOn;
+  drawPiecesOn = function(ctx){
+    if (ctx === Game.tctx){
+      // tray: draw only inside tray rect and map stage->tray local
+      const tr = Game.tray.getBoundingClientRect();
+      const scaleX = tr.width / Game.trayAreaScreen.w;
+      const scaleY = tr.height / Game.trayAreaScreen.h;
+      ctx.save();
+      ctx.scale(scaleX, scaleY);
+      ctx.translate(-Game.trayAreaScreen.x, -Game.trayAreaScreen.y);
+      const pieces = Game.pieces.slice().sort((a,b)=>a.z-b.z);
+      for(const p of pieces){
+        if (p.placed) continue;
+        if (!inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen)) continue;
+        ctx.drawImage(p.img, p.x, p.y, p.w, p.h);
+      }
+      ctx.restore();
+      return;
+    }
+    // stage canvas
+    const pieces = Game.pieces.slice().sort((a,b)=>a.z-b.z);
+    for(const p of pieces){
+      if (p.placed) continue;
+      if (inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen)) continue;
+      ctx.drawImage(p.img, p.x, p.y, p.w, p.h);
+      if (Game.activePiece === p){
+        ctx.save();
+        ctx.globalAlpha=0.35;
+        ctx.strokeStyle='#ff4d6d';
+        ctx.lineWidth=6;
+        roundRect(ctx, p.x+4, p.y+4, p.w-8, p.h-8, 18);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  // ---------- Confetti ----------
+  let confettiRAF = null;
+  function startConfetti(){
+    const c = $('#confetti');
+    const o = $('#winOverlay');
+    const rect = o.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio||1));
+    c.width = Math.floor(rect.width*dpr);
+    c.height = Math.floor(rect.height*dpr);
+    const ctx = c.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const parts = [];
+    const colors = ['#ff4d6d','#00b894','#6c5ce7','#ffd93d','#4d96ff','#f06595'];
+    for(let i=0;i<140;i++){
+      parts.push({
+        x: rand(0, rect.width),
+        y: rand(-rect.height, 0),
+        vy: rand(1.2, 3.8),
+        vx: rand(-1.2, 1.2),
+        r: rand(4,8),
+        a: rand(0, Math.PI*2),
+        va: rand(-0.15,0.15),
+        col: colors[i%colors.length]
+      });
+    }
+
+    const start = performance.now();
+    const tick = () => {
+      const t = performance.now();
+      ctx.clearRect(0,0, rect.width, rect.height);
+      for(const p of parts){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.a += p.va;
+        if (p.y > rect.height + 20){ p.y = rand(-80,-10); p.x = rand(0, rect.width); }
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.a);
+        ctx.fillStyle=p.col;
+        ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
+        ctx.restore();
+      }
+      if (t - start < 6500) confettiRAF = requestAnimationFrame(tick);
+    };
+    if (confettiRAF) cancelAnimationFrame(confettiRAF);
+    confettiRAF = requestAnimationFrame(tick);
+  }
+
+  // ---------- Flow / UI ----------
+  const IMAGES = [
+    {key:'taj', hi:'ताज महल', en:'Taj Mahal', sub:'A beautiful monument'},
+    {key:'peacock', hi:'मोर', en:'Peacock', sub:'India\'s national bird'},
+    {key:'elephant', hi:'हाथी', en:'Elephant', sub:'Gentle giant'},
+    {key:'lotus', hi:'कमल', en:'Lotus', sub:'A sacred flower'},
+  ];
+
+  function showScreen(id){
+    for(const s of document.querySelectorAll('.screen')) s.classList.remove('active');
+    $(id).classList.add('active');
+    $('#btnBack').style.display = (id==='#screenSelect') ? 'none' : 'inline-block';
+  }
+
+  function buildChoiceCards(){
+    const wrap = $('#choices');
+    wrap.innerHTML = '';
+    for(const it of IMAGES){
+      const d = document.createElement('div');
+      d.className='choice';
+      d.tabIndex = 0;
+      d.innerHTML = `
+        <div class="thumb"><canvas aria-hidden="true"></canvas></div>
+        <div>
+          <div class="choice-title">${it.hi} / ${it.en}</div>
+          <div class="choice-sub">${it.sub}</div>
+        </div>`;
+      const tc = d.querySelector('canvas');
+      tc.width = 640; tc.height=480;
+      const tctx = tc.getContext('2d');
+      const art = makeArtCanvas(it.key, 900);
+      tctx.drawImage(art, 0,0,900,900, 0,0,640,480);
+      d.addEventListener('click', ()=>{
+        AudioSys.resume();
+        Game.imageKey = it.key;
+        Game.imageLabel = `${it.hi} / ${it.en}`;
+        $('#pickedLabel').textContent = `Picture: ${Game.imageLabel}`;
+        showScreen('#screenDifficulty');
+      });
+      d.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); d.click(); }});
+      wrap.appendChild(d);
+    }
+  }
+
+  function startGame(diff){
+    const [r,c] = difficultyToRC(diff);
+    Game.rows = r; Game.cols = c;
+    $('#hudTitle').textContent = `${Game.imageLabel} • ${r}×${c}`;
+
+    showScreen('#screenGame');
+    $('#winOverlay').classList.remove('show');
+
+    computeLayout();
+    computeTrayMapping();
+    resetGame();
+    makePieces();
+
+    // Place all pieces initially inside tray area
+    const minSize = Math.min(Game.board.w/Game.cols, Game.board.h/Game.rows);
+    for(const p of Game.pieces){
+      p.x = rand(Game.trayAreaScreen.x + 10, Game.trayAreaScreen.x + Game.trayAreaScreen.w - p.w - 10);
+      p.y = rand(Game.trayAreaScreen.y + 10, Game.trayAreaScreen.y + Game.trayAreaScreen.h - p.h - 10);
+      p.placed = false;
+    }
+
+    Game.started = true;
+    updateHUD();
+    requestAnimationFrame(render);
+  }
+
+  function shuffleTray(){
+    if (!Game.started || Game.won) return;
+    for(const p of Game.pieces){
+      if (p.placed) continue;
+      // only shuffle those currently in tray
+      if (!inRect(p.x + p.w/2, p.y + p.h/2, Game.trayAreaScreen)) continue;
+      p.x = rand(Game.trayAreaScreen.x + 10, Game.trayAreaScreen.x + Game.trayAreaScreen.w - p.w - 10);
+      p.y = rand(Game.trayAreaScreen.y + 10, Game.trayAreaScreen.y + Game.trayAreaScreen.h - p.h - 10);
+      p.z = ++Game.zCounter;
+    }
+    toast('Shuffled!');
+  }
+
+  function hint(){
+    if (!Game.started || Game.won) return;
+    Game.hintUntil = performance.now() + 1200;
+    toast('Hint shown!');
+  }
+
+  function bindUI(){
+    $('#btnBack').addEventListener('click', ()=>{
+      if ($('#screenGame').classList.contains('active')){
+        Game.started = false;
+        showScreen('#screenDifficulty');
+      } else {
+        showScreen('#screenSelect');
+      }
+    });
+
+    document.querySelectorAll('[data-diff]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        AudioSys.resume();
+        startGame(btn.dataset.diff);
+      });
+    });
+
+    $('#btnShuffle').addEventListener('click', ()=>{ AudioSys.resume(); shuffleTray(); });
+    $('#btnHint').addEventListener('click', ()=>{ AudioSys.resume(); hint(); });
+    $('#btnPlayAgain').addEventListener('click', ()=>{
+      AudioSys.resume();
+      $('#winOverlay').classList.remove('show');
+      startGame(Game.rows===3?'easy':Game.rows===4?'medium':'hard');
+    });
+
+    $('#btnMute').addEventListener('click', ()=>{
+      AudioSys.resume();
+      AudioSys.setMuted(!AudioSys.muted);
+      $('#btnMute').textContent = AudioSys.muted ? '🔇 Sound: Off' : '🔊 Sound: On';
+    });
+
+    // first interaction resumes audio
+    window.addEventListener('pointerdown', ()=>AudioSys.resume(), {once:true});
+
+    window.addEventListener('resize', ()=>{
+      if (!$('#screenGame').classList.contains('active')) return;
+      computeLayout();
+      computeTrayMapping();
+      // keep placed pieces snapped; others remain roughly where they are (clamp inside stage)
+      const srect = $('#stage').getBoundingClientRect();
+      for(const p of Game.pieces){
+        if (p.placed){
+          p.x = p.correctX; p.y = p.correctY;
+        } else {
+          p.x = clamp(p.x, 0, srect.width - p.w);
+          p.y = clamp(p.y, 0, srect.height - p.h);
+        }
+      }
+    });
+
+    setupPointer();
+  }
+
+  // prevent scroll while dragging on mobile
+  document.addEventListener('touchmove', (e)=>{
+    if ($('#screenGame').classList.contains('active')) e.preventDefault();
+  }, {passive:false});
+
+  // init
+  buildChoiceCards();
+  bindUI();
+  AudioSys.ensure();
+  AudioSys.setMuted(false);
+})();
+</script>
+</body>
+</html>
